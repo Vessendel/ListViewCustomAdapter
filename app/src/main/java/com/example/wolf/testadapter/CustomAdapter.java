@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -64,11 +67,14 @@ public class CustomAdapter extends BaseAdapter {
         rowView = inflater.inflate(R.layout.program_list, null);
         holder.tv = (TextView) rowView.findViewById(R.id.textView1);
         holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
+
         holder.tv.setText(arr.get(position));
         LoadImage Loader = new LoadImage();
         Loader.imgs = holder.img;
         System.out.println(arr);
+
         Loader.execute(arr.get(position));
+        Loader.position = position;
 
         rowView.setOnClickListener(new OnClickListener() {
             @Override
@@ -83,6 +89,7 @@ public class CustomAdapter extends BaseAdapter {
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ImageView imgs;
+        Integer position;
 
         @Override
 
@@ -109,6 +116,19 @@ public class CustomAdapter extends BaseAdapter {
 
             if (image != null) {
                 imgs.setImageBitmap(image);
+                String filename = "image"+position+".png";
+                File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                File dest = new File(sd, filename);
+
+
+                try {
+                    FileOutputStream out = new FileOutputStream(dest);
+                    image.compress(Bitmap.CompressFormat.PNG, 90, out);
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             } else {
 
